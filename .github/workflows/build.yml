@@ -4,16 +4,15 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'plugin/**'
-      - 'include/**'
-      - 'CMakeLists.txt'
+      - 'ocrp_whitelist_plugin/**'
       - '.github/workflows/build.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Install 32-bit toolchain
         run: |
@@ -25,20 +24,25 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/samp-forks/samp-plugin-sdk.git sdk
 
-      - name: Build plugin
+      - name: Build OCRP plugin
         run: |
-          cmake -S OCRP_Whitelist_Plugin_SOURCE -B OCRP_Whitelist_Plugin_SOURCE/build -DSAMP_SDK_ROOT="$PWD/sdk" -DCMAKE_CXX_FLAGS="-m32" -DCMAKE_SHARED_LINKER_FLAGS="-m32"
-          cmake --build build --config Release
+          cmake -S ocrp_whitelist_plugin -B ocrp_whitelist_plugin/build -DSAMP_SDK_ROOT="$PWD/sdk" -DCMAKE_CXX_FLAGS="-m32" -DCMAKE_SHARED_LINKER_FLAGS="-m32"
+          cmake --build ocrp_whitelist_plugin/build --config Release
+
+      - name: Check plugin
+        run: |
+          file ocrp_whitelist_plugin/build/ocrp_whitelist.so
 
       - name: Package plugin
         run: |
           mkdir -p dist
-          cp build/ocrp_whitelist.so dist/
-          cp include/ocrp_whitelist.inc dist/
+          cp ocrp_whitelist_plugin/build/ocrp_whitelist.so dist/
+          cp ocrp_whitelist_plugin/include/ocrp_whitelist.inc dist/
           cd dist
           zip -r ../OCRP-Whitelist-Plugin.zip .
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload plugin
+        uses: actions/upload-artifact@v4
         with:
           name: OCRP-Whitelist-Plugin
           path: OCRP-Whitelist-Plugin.zip
