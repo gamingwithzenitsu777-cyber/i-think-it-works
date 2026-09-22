@@ -27,7 +27,7 @@ jobs:
 
       - name: Build plugin
         run: |
-          cmake -S . -B build -DSAMP_SDK_ROOT="$PWD/sdk" -DCMAKE_CXX_FLAGS="-m32" -DCMAKE_SHARED_LINKER_FLAGS="-m32"
+          cmake -S OCRP_Whitelist_Plugin_SOURCE -B OCRP_Whitelist_Plugin_SOURCE/build -DSAMP_SDK_ROOT="$PWD/sdk" -DCMAKE_CXX_FLAGS="-m32" -DCMAKE_SHARED_LINKER_FLAGS="-m32"
           cmake --build build --config Release
 
       - name: Package plugin
