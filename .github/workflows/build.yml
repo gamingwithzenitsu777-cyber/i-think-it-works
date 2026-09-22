@@ -1,0 +1,44 @@
+name: Build OCRP Whitelist Plugin
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'plugin/**'
+      - 'include/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install 32-bit toolchain
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y g++-multilib gcc-multilib cmake
+
+      - name: Download SA-MP Plugin SDK
+        run: |
+          git clone --depth 1 https://github.com/samp-forks/samp-plugin-sdk.git sdk
+
+      - name: Build plugin
+        run: |
+          cmake -S . -B build -DSAMP_SDK_ROOT="$PWD/sdk" -DCMAKE_CXX_FLAGS="-m32" -DCMAKE_SHARED_LINKER_FLAGS="-m32"
+          cmake --build build --config Release
+
+      - name: Package plugin
+        run: |
+          mkdir -p dist
+          cp build/ocrp_whitelist.so dist/
+          cp include/ocrp_whitelist.inc dist/
+          cd dist
+          zip -r ../OCRP-Whitelist-Plugin.zip .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OCRP-Whitelist-Plugin
+          path: OCRP-Whitelist-Plugin.zip
