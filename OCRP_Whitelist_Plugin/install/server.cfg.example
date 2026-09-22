@@ -1,0 +1,5 @@
+# Add the plugin to your existing plugins line.
+# Example:
+plugins ocrp_whitelist.so
+
+# Keep your existing rcon_password and other settings.
